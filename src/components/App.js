@@ -2,6 +2,7 @@ import React from 'react';
 
 import Filters from './Filters';
 import PetBrowser from './PetBrowser';
+import {getAll, getByType} from "../data/pets.js"
 
 class App extends React.Component {
   constructor() {
@@ -12,8 +13,33 @@ class App extends React.Component {
       adoptedPets: [],
       filters: {
         type: 'all',
-      }
+      },
+      adoptedPets: []
     };
+  }
+
+  componentDidMount() {
+    this.setState({pets: getAll()});
+  }
+
+  handleAdoption = (petId) => {
+    this.setState({adoptedPets: [...this.state.adoptedPets, petId]});
+    // console.log(petId)
+  }
+
+  handleChangeType = (type) => {
+    const newState = Object.assign({}, this.state, {
+      filters: {
+        type: type
+      }
+    });
+
+    this.setState(newState)
+  }
+
+  findByType = () => {
+    const pets = this.state.filters.type === "all" ? getAll() : getByType(this.state.filters.type);
+    this.setState({pets: pets});
   }
 
   render() {
@@ -25,10 +51,10 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters filters={this.state.filters} onFindPetsClick={this.findByType} onChangeType={this.handleChangeType} />
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser pets={this.state.pets} adoptedPets={this.state.adoptedPets} onAdoptPet={this.handleAdoption}/>
             </div>
           </div>
         </div>
